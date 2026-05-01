@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrendStudio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: rgba(255,255,255,0.08);
+    --accent: #b8ff57;
+    --accent2: #ff6b35;
+    --accent3: #7b61ff;
+    --text: #f0f0f0;
+    --muted: #666;
+    --danger: #ff4757;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
+
+  /* HEADER */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 15px 28px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: rgba(10,10,15,0.97);
+    backdrop-filter: blur(16px); z-index: 200;
+  }
+  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 3px; color: var(--accent); }
+  .logo span { color: var(--text); }
+  .live-badge {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--muted);
+  }
+  .live-dot {
+    width: 6px; height: 6px; background: var(--accent);
+    border-radius: 50%; box-shadow: 0 0 7px var(--accent);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+
+  /* LAYOUT */
+  .app { display: grid; grid-template-columns: 255px 1fr; min-height: calc(100vh - 56px); }
+
+  /* SIDEBAR */
+  .sidebar {
+    border-right: 1px solid var(--border);
+    padding: 20px 14px; display: flex; flex-direction: column; gap: 18px;
+  }
+  .lbl {
+    display: block; font-size: 10px; font-weight: 600;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 7px;
+  }
+  .fi {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 9px 11px; border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    outline: none; transition: border-color 0.2s; appearance: none;
+  }
+  .fi:focus { border-color: var(--accent); }
+  .fi::placeholder { color: var(--muted); }
+
+  .chip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .chip {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--muted); padding: 7px 4px; border-radius: 7px;
+    font-size: 11px; font-weight: 500; cursor: pointer; text-align: center;
+    transition: all 0.15s; font-family: 'DM Sans', sans-serif; user-select: none;
+  }
+  .chip:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+  .chip.pon { background: rgba(184,255,87,0.1); border-color: rgba(184,255,87,0.4); color: var(--accent); }
+  .chip.ton { background: rgba(123,97,255,0.12); border-color: rgba(123,97,255,0.35); color: var(--accent3); }
+
+  .big-btn {
+    width: 100%; background: var(--accent); color: #000; border: none;
+    padding: 13px; border-radius: 10px; font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px; letter-spacing: 1.5px; cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s; margin-top: auto;
+  }
+  .big-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(184,255,87,0.25); }
+  .big-btn:active { transform: scale(0.98); }
+  .big-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+  .big-btn.danger { background: var(--danger); color: #fff; }
+  .big-btn.secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+
+  /* TABS */
+  .tabs {
+    display: flex; border-bottom: 1px solid var(--border);
+    padding: 0 24px; background: var(--surface); gap: 0;
+  }
+  .tab {
+    padding: 15px 18px; font-size: 13px; font-weight: 500;
+    color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent;
+    transition: all 0.18s; white-space: nowrap;
+  }
+  .tab.active { color: var(--text); border-bottom-color: var(--accent); }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  .main { display: flex; flex-direction: column; }
+  .pane { display: none; padding: 24px; flex: 1; }
+  .pane.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px;
+  }
+  .card-hd {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .card-hd h3 {
+    font-size: 11px; font-weight: 600; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  /* SMALL BUTTONS */
+  .sm-btn {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 6px 12px; border-radius: 7px;
+    font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .sm-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .sm-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .sm-btn.hi { background: rgba(184,255,87,0.1); border-color: rgba(184,255,87,0.35); color: var(--accent); }
+
+  /* TRENDS */
+  .trends-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin-top: 18px; }
+  .tcard {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 11px; padding: 15px; cursor: pointer;
+    transition: all 0.18s; position: relative; overflow: hidden;
+  }
+  .tcard::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    transform: scaleX(0); transform-origin: left; transition: transform 0.25s;
+  }
+  .tcard:hover { border-color: rgba(184,255,87,0.3); transform: translateY(-2px); }
+  .tcard:hover::after, .tcard.sel::after { transform: scaleX(1); }
+  .tcard.sel { border-color: var(--accent); background: rgba(184,255,87,0.04); }
+  .tcard-plat { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--accent2); margin-bottom: 5px; }
+  .tcard-title { font-size: 14px; font-weight: 600; margin-bottom: 5px; line-height: 1.35; }
+  .tcard-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .tcard-meta { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 11px; color: var(--muted); }
+  .heat-bars { display: flex; gap: 2px; align-items: flex-end; }
+  .hb { width: 3px; border-radius: 2px; background: var(--accent); }
+
+  /* POST GEN */
+  .gen-layout { display: grid; grid-template-columns: 1fr 300px; gap: 16px; }
+  .gen-left { display: flex; flex-direction: column; gap: 14px; }
+  .post-ta {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 13px; border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.6;
+    resize: vertical; min-height: 120px; outline: none; transition: border-color 0.2s;
+  }
+  .post-ta:focus { border-color: var(--accent); }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .htag {
+    background: rgba(123,97,255,0.14); border: 1px solid rgba(123,97,255,0.3);
+    color: #a89fff; padding: 4px 10px; border-radius: 20px;
+    font-size: 12px; cursor: pointer; transition: background 0.15s;
+  }
+  .htag:hover { background: rgba(123,97,255,0.25); }
+
+  /* MUSIC */
+  .music-list { display: flex; flex-direction: column; gap: 7px; margin-top: 6px; }
+  .mitem {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 11px; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 8px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .mitem:hover, .mitem.sel { border-color: var(--accent2); background: rgba(255,107,53,0.07); }
+  .micon {
+    width: 30px; height: 30px; border-radius: 6px;
+    background: rgba(255,107,53,0.14);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; flex-shrink: 0;
+  }
+  .minfo { flex: 1; min-width: 0; }
+  .mtitle { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mmeta { font-size: 11px; color: var(--muted); }
+  .mvibe {
+    font-size: 10px; padding: 2px 7px; border-radius: 20px;
+    background: rgba(255,107,53,0.14); color: var(--accent2); flex-shrink: 0;
+  }
+
+  /* REVIEW */
+  .rev-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .rev-out { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; min-height: 400px; }
+  .score-block { text-align: center; padding: 16px 0; }
+  .score-num { font-family: 'Bebas Neue', sans-serif; font-size: 76px; line-height: 1; color: var(--accent); }
+  .score-lbl { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+  .crit-row { display: flex; align-items: center; gap: 10px; font-size: 13px; margin-bottom: 8px; }
+  .crit-lbl { flex: 1; }
+  .crit-track { width: 90px; height: 4px; background: var(--surface2); border-radius: 2px; flex-shrink: 0; }
+  .crit-fill { height: 100%; border-radius: 2px; transition: width 0.7s ease; }
+  .crit-val { font-size: 12px; color: var(--muted); min-width: 26px; text-align: right; }
+
+  /* SCHEDULE */
+  .sched-list { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+  .sitem {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 13px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 9px; font-size: 13px;
+  }
+  .plt-badge {
+    padding: 2px 8px; border-radius: 20px;
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; flex-shrink: 0;
+  }
+  .b-ig { background: rgba(255,107,53,0.18); color: var(--accent2); }
+  .b-tt { background: rgba(184,255,87,0.13); color: var(--accent); }
+  .b-tw { background: rgba(123,97,255,0.15); color: var(--accent3); }
+  .b-yt { background: rgba(255,71,87,0.15); color: var(--danger); }
+  .b-def { background: rgba(255,255,255,0.07); color: var(--muted); }
+  .stime { color: var(--muted); font-size: 12px; flex-shrink: 0; }
+  .scap { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--text); }
+  .scheck {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--surface2);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 10px; transition: all 0.15s; flex-shrink: 0;
+  }
+  .scheck.done { background: var(--accent); border-color: var(--accent); color: #000; }
+
+  /* LOADING */
+  .bar { height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent3), var(--accent2)); background-size: 200% 100%; border-radius: 2px; animation: sh 1.5s linear infinite; }
+  @keyframes sh { 0%{background-position:0%}100%{background-position:200%} }
+  .spin { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: rot 0.8s linear infinite; display: inline-block; }
+  @keyframes rot { to{transform:rotate(360deg)} }
+  .skel { background: var(--surface2); border-radius: 10px; animation: sk 1.5s ease-in-out infinite; }
+  @keyframes sk { 0%,100%{opacity:0.5}50%{opacity:1} }
+
+  /* EMPTY */
+  .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 180px; color: var(--muted); font-size: 13px; gap: 8px; text-align: center; }
+  .empty-ico { font-size: 30px; opacity: 0.45; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 22px; right: 22px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); padding: 11px 15px;
+    border-radius: 9px; font-size: 13px; z-index: 9999;
+    transform: translateY(60px); opacity: 0; transition: all 0.28s;
+    max-width: 260px; pointer-events: none;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* UTILS */
+  .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .spacer { flex: 1; }
+  .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; }
+  .section-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+  .wide-ta {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 10px 12px; border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; line-height: 1.6;
+    resize: vertical; outline: none; transition: border-color 0.2s;
+  }
+  .wide-ta:focus { border-color: var(--accent); }
+  .pill { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+  .pill-g { background: rgba(184,255,87,0.1); color: var(--accent); }
+  .pill-o { background: rgba(255,107,53,0.1); color: var(--accent2); }
+  .pill-p { background: rgba(123,97,255,0.1); color: var(--accent3); }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { border-right: none; border-bottom: 1px solid var(--border); flex-direction: row; flex-wrap: wrap; padding: 14px; gap: 12px; }
+    .sidebar > div { flex: 1; min-width: 140px; }
+    .gen-layout { grid-template-columns: 1fr; }
+    .rev-layout { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Trend<span>Studio</span></div>
+  <div class="live-badge"><div class="live-dot"></div> AI powered · live web search</div>
+</header>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div>
+      <span class="lbl">Your niche</span>
+      <input class="fi" type="text" id="niche" placeholder="e.g. Sustainable fashion" value="Fitness & Wellness">
+    </div>
+    <div>
+      <span class="lbl">Platforms</span>
+      <div class="chip-grid">
+        <div class="chip pon" data-p="Instagram" onclick="togP(this)">Instagram</div>
+        <div class="chip pon" data-p="TikTok" onclick="togP(this)">TikTok</div>
+        <div class="chip" data-p="Twitter/X" onclick="togP(this)">Twitter/X</div>
+        <div class="chip" data-p="YouTube" onclick="togP(this)">YouTube</div>
+        <div class="chip" data-p="Pinterest" onclick="togP(this)">Pinterest</div>
+        <div class="chip" data-p="LinkedIn" onclick="togP(this)">LinkedIn</div>
+      </div>
+    </div>
+    <div>
+      <span class="lbl">Tone</span>
+      <div class="chip-grid">
+        <div class="chip ton" data-t="Energetic" onclick="togT(this)">Energetic</div>
+        <div class="chip" data-t="Educational" onclick="togT(this)">Educational</div>
+        <div class="chip" data-t="Humorous" onclick="togT(this)">Humorous</div>
+        <div class="chip" data-t="Inspirational" onclick="togT(this)">Inspirational</div>
+      </div>
+    </div>
+    <div>
+      <span class="lbl">Brand name</span>
+      <input class="fi" type="text" id="brand" placeholder="Optional">
+    </div>
+    <button class="big-btn" id="scanBtn" onclick="fetchTrends()">SCAN TRENDS</button>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('trends',this)">Trending Topics</div>
+      <div class="tab" onclick="switchTab('gen',this)">Post Generator</div>
+      <div class="tab" onclick="switchTab('review',this)">AI Peer Review</div>
+      <div class="tab" onclick="switchTab('schedule',this)">Schedule</div>
+    </div>
+
+    <!-- TRENDS -->
+    <div class="pane active" id="pane-trends">
+      <div class="row">
+        <div><div class="section-title">What's Trending</div><div class="section-sub">Click a card to build a post from it</div></div>
+        <div class="spacer"></div>
+        <span id="tcount" style="font-size:12px;color:var(--muted)"></span>
+      </div>
+      <div id="tloading" style="display:none;margin-top:18px;">
+        <div class="bar" style="margin-bottom:14px;"></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+          <div class="skel" style="height:130px;"></div>
+          <div class="skel" style="height:130px;"></div>
+          <div class="skel" style="height:130px;"></div>
+        </div>
+      </div>
+      <div class="trends-grid" id="tgrid"></div>
+      <div class="empty" id="tempty"><div class="empty-ico">🔍</div><div>Set your niche and hit <strong style="color:var(--accent)">Scan Trends</strong></div><div style="font-size:11px">Searches the web for what's hot right now</div></div>
+    </div>
+
+    <!-- GENERATOR -->
+    <div class="pane" id="pane-gen">
+      <div class="section-title">Post Generator</div>
+      <div class="section-sub" style="margin-bottom:18px">AI writes captions, hashtags, and picks music for your trend</div>
+      <div class="gen-layout">
+        <div class="gen-left">
+
+          <div class="card">
+            <div class="card-hd"><h3>Active Trend</h3><span class="pill pill-o" id="activePlatPill"></span></div>
+            <div id="activeTrendText" style="font-size:13px;color:var(--muted)">← Select a trend from the Trending Topics tab</div>
+          </div>
+
+          <div class="card">
+            <div class="card-hd"><h3>Caption</h3><button class="sm-btn hi" onclick="genPost()" id="genBtn">Generate ✦</button></div>
+            <div id="genLoading" style="display:none;margin-bottom:8px;"><div class="bar"></div></div>
+            <textarea class="post-ta" id="captionOut" placeholder="Your AI-generated caption appears here..."></textarea>
+          </div>
+
+          <div class="card">
+            <div class="card-hd"><h3>Hashtags</h3><button class="sm-btn" id="hashBtn" onclick="genHashtags()">Regenerate</button></div>
+            <div class="tag-row" id="hashRow"><span style="font-size:12px;color:var(--muted)">Generate a post first</span></div>
+          </div>
+
+          <div class="card">
+            <div class="card-hd"><h3>Notes</h3></div>
+            <textarea class="wide-ta" id="postNotes" style="height:70px;" placeholder="Visual ideas, best time, CTA..."></textarea>
+          </div>
+
+          <button class="big-btn secondary" onclick="addToSchedule()">ADD TO SCHEDULE</button>
+        </div>
+
+        <!-- MUSIC -->
+        <div class="card" style="height:fit-content;">
+          <div class="card-hd"><h3>Music Vibe</h3><button class="sm-btn" id="musicBtn" onclick="suggestMusic()">Suggest ♪</button></div>
+          <div id="musicLoading" style="display:none;margin-bottom:8px;"><div class="bar"></div></div>
+          <div class="music-list" id="musicList">
+            <div class="empty" style="min-height:100px;"><div class="empty-ico">🎵</div><div>Suggest music for your trend</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEW -->
+    <div class="pane" id="pane-review">
+      <div class="section-title">AI Peer Review</div>
+      <div class="section-sub" style="margin-bottom:18px">Honest AI critique on any post, product, or ad copy</div>
+      <div class="rev-layout">
+
+        <div class="card" style="display:flex;flex-direction:column;gap:13px;">
+          <div>
+            <span class="lbl">What are you reviewing?</span>
+            <select class="fi" id="revType">
+              <option>Product (for advertising)</option>
+              <option>Social media post</option>
+              <option>Ad copy / headline</option>
+              <option>Brand messaging</option>
+              <option>Marketing strategy</option>
+            </select>
+          </div>
+          <div>
+            <span class="lbl">Paste your content</span>
+            <textarea class="wide-ta" id="revInput" style="height:150px;" placeholder="Ad copy, product description, caption, strategy..."></textarea>
+          </div>
+          <div>
+            <span class="lbl">Target audience (optional)</span>
+            <input class="fi" type="text" id="revAudience" placeholder="e.g. Gen Z fitness enthusiasts">
+          </div>
+          <button class="big-btn" onclick="runReview()" id="revBtn">RUN PEER REVIEW</button>
+        </div>
+
+        <div class="rev-out" id="revOut">
+          <div class="empty"><div class="empty-ico">🧠</div><div>Submit content for a score, breakdown, and suggestions</div></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SCHEDULE -->
+    <div class="pane" id="pane-schedule">
+      <div class="row">
+        <div><div class="section-title">Schedule</div><div class="section-sub">Your queued posts</div></div>
+        <div class="spacer"></div>
+        <button class="sm-btn" onclick="clearSched()">Clear all</button>
+      </div>
+      <div id="schedContainer">
+        <div class="empty" style="margin-top:20px;"><div class="empty-ico">📅</div><div>No posts scheduled yet</div><div style="font-size:11px">Generate a post and add it to the schedule</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '/claude';
+
+let platforms = ['Instagram','TikTok'];
+let tone = 'Energetic';
+let trends = [];
+let selectedTrend = null;
+let selectedMusic = null;
+let schedule = [];
+
+function togP(el) {
+  el.classList.toggle('pon');
+  platforms = [...document.querySelectorAll('.chip.pon[data-p]')].map(e => e.dataset.p);
+}
+function togT(el) {
+  document.querySelectorAll('.chip[data-t]').forEach(e => e.classList.remove('ton'));
+  el.classList.add('ton');
+  tone = el.dataset.t;
+}
+function switchTab(id, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('pane-' + id).classList.add('active');
+}
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+async function callClaude(payload) {
+  const res = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data.content.filter(b => b.type === 'text').map(b => b.text).join('\n');
+}
+
+async function fetchTrends() {
+  const niche = document.getElementById('niche').value.trim() || 'Fitness & Wellness';
+  const plats = platforms.join(', ') || 'Instagram, TikTok';
+  const btn = document.getElementById('scanBtn');
+  btn.disabled = true; btn.textContent = 'SCANNING...';
+  document.getElementById('tempty').style.display = 'none';
+  document.getElementById('tgrid').innerHTML = '';
+  document.getElementById('tloading').style.display = 'block';
+
+  try {
+    const raw = await callClaude({
+      system: 'You are a social media trend analyst. Use web_search to find current trends. Return ONLY a raw JSON array, absolutely no markdown fences or explanation text.',
+      messages: [{ role: 'user', content: `Search the web for what is trending RIGHT NOW in "${niche}" on ${plats} in 2025. Return 6 real specific trending topics, formats, or sounds as a JSON array. Each object: {"platform":"platform","title":"short trend name","description":"1-2 sentence description","heat":1-5,"type":"Sound|Format|Topic|Challenge|Hashtag"}` }]
+    });
+    let data;
+    try { const m = raw.match(/\[[\s\S]*\]/); data = JSON.parse(m ? m[0] : raw); }
+    catch(e) { data = fallbackTrends(niche); }
+    trends = data;
+    document.getElementById('tcount').textContent = data.length + ' trends found';
+    renderTrends(data);
+  } catch(e) {
+    trends = fallbackTrends(niche);
+    renderTrends(trends);
+    toast('Using example trends (check API key setup)');
+  }
+  document.getElementById('tloading').style.display = 'none';
+  btn.disabled = false; btn.textContent = 'SCAN TRENDS';
+}
+
+function fallbackTrends(niche) {
+  return [
+    {platform:'TikTok',title:'Day-in-the-life content',description:'Authentic unedited routines. High saves and shares because audiences love real over polished.',heat:5,type:'Format'},
+    {platform:'Instagram',title:'Transformation carousels',description:'Before/after slideshow format. Stops the scroll and drives massive saves.',heat:5,type:'Format'},
+    {platform:'TikTok',title:'Get ready with me',description:'GRWM applied to any niche. Feels personal and pulls strong view retention.',heat:4,type:'Format'},
+    {platform:'Instagram',title:niche+' deep dive',description:'Long-form educational Reels are outperforming short clips. Audience wants substance.',heat:4,type:'Topic'},
+    {platform:'TikTok',title:'POV storytelling',description:'First-person narrative format. Instantly immersive, very shareable.',heat:4,type:'Format'},
+    {platform:'YouTube',title:'Honest reviews / teardowns',description:'No-fluff breakdowns of products or techniques. Trust-building content that converts.',heat:3,type:'Topic'},
+  ];
+}
+
+function renderTrends(data) {
+  const grid = document.getElementById('tgrid');
+  grid.innerHTML = data.map((t,i) => {
+    const bars = [1,2,3,4,5].map(j => `<div class="hb" style="height:${5+j*3}px;opacity:${j<=t.heat?1:0.15}"></div>`).join('');
+    return `<div class="tcard" id="tc-${i}" onclick="pickTrend(${i})">
+      <div class="tcard-plat">${t.platform} · ${t.type}</div>
+      <div class="tcard-title">${t.title}</div>
+      <div class="tcard-desc">${t.description}</div>
+      <div class="tcard-meta"><div class="heat-bars">${bars}</div><span>${t.heat}/5 heat</span></div>
+    </div>`;
+  }).join('');
+}
+
+function pickTrend(i) {
+  document.querySelectorAll('.tcard').forEach(c => c.classList.remove('sel'));
+  document.getElementById('tc-' + i).classList.add('sel');
+  selectedTrend = trends[i];
+  document.getElementById('activeTrendText').textContent = selectedTrend.title + ' — ' + selectedTrend.description;
+  document.getElementById('activeTrendText').style.color = 'var(--text)';
+  document.getElementById('activePlatPill').textContent = selectedTrend.platform;
+  switchTab('gen', document.querySelectorAll('.tab')[1]);
+  toast('Trend selected. Hit Generate to write your post.');
+}
+
+async function genPost() {
+  if (!selectedTrend) { toast('Select a trend first!'); return; }
+  const niche = document.getElementById('niche').value || 'general';
+  const brand = document.getElementById('brand').value;
+  const plats = platforms.join(', ');
+  const btn = document.getElementById('genBtn');
+  btn.disabled = true; btn.textContent = 'Writing...';
+  document.getElementById('genLoading').style.display = 'block';
+  document.getElementById('captionOut').value = '';
+
+  try {
+    const text = await callClaude({
+      system: 'You are a top social media copywriter. Write punchy, authentic captions. No hashtags.',
+      messages: [{ role: 'user', content: `Write a ${tone.toLowerCase()} caption for the trend "${selectedTrend.title}" in the ${niche} niche. Platform: ${plats}.${brand?' Brand: '+brand+'.':''} Music if selected: ${selectedMusic?selectedMusic.title:'none'}. 3-5 lines max. Make it scroll-stopping and authentic.` }]
+    });
+    document.getElementById('captionOut').value = text.trim();
+    genHashtags();
+  } catch(e) { document.getElementById('captionOut').value = 'Error generating. Check your API setup.'; }
+
+  document.getElementById('genLoading').style.display = 'none';
+  btn.disabled = false; btn.textContent = 'Generate ✦';
+}
+
+async function genHashtags() {
+  if (!selectedTrend) return;
+  const niche = document.getElementById('niche').value || 'general';
+  const btn = document.getElementById('hashBtn');
+  btn.disabled = true;
+  document.getElementById('hashRow').innerHTML = '<div class="skel" style="height:22px;width:220px;"></div>';
+
+  try {
+    const text = await callClaude({
+      system: 'Return ONLY a space-separated list of hashtags starting with #. Nothing else.',
+      messages: [{ role: 'user', content: `8-12 hashtags for a ${niche} post about "${selectedTrend.title}" on ${platforms.join(', ')}. Mix high-volume and niche.` }]
+    });
+    const tags = text.trim().split(/\s+/).filter(t => t.startsWith('#'));
+    document.getElementById('hashRow').innerHTML = tags.map(t => `<span class="htag">${t}</span>`).join('');
+  } catch(e) {
+    document.getElementById('hashRow').innerHTML = '<span class="htag">#trending</span><span class="htag">#viral</span><span class="htag">#fyp</span>';
+  }
+  btn.disabled = false;
+}
+
+async function suggestMusic() {
+  if (!selectedTrend) { toast('Select a trend first!'); return; }
+  const niche = document.getElementById('niche').value || 'general';
+  const btn = document.getElementById('musicBtn');
+  btn.disabled = true; btn.textContent = 'Searching...';
+  document.getElementById('musicLoading').style.display = 'block';
+  document.getElementById('musicList').innerHTML = '';
+
+  try {
+    const raw = await callClaude({
+      system: 'You search for trending audio/music on social platforms. Return ONLY a raw JSON array, no markdown.',
+      messages: [{ role: 'user', content: `Search for 4 trending audio tracks or sounds for a ${niche} post about "${selectedTrend.title}" on ${platforms.join(', ')} in 2025. Return JSON: [{"title":"name","artist":"artist","vibe":"one word","bpm":"Upbeat|Mid|Chill","platform":"platform"}]` }]
+    });
+    let songs;
+    try { const m = raw.match(/\[[\s\S]*\]/); songs = JSON.parse(m ? m[0] : raw); }
+    catch(e) { songs = [{title:'Trending Sound',artist:'Various',vibe:'Hype',bpm:'Upbeat',platform:'TikTok'},{title:'Chill Lofi Beat',artist:'Lofi Girl',vibe:'Calm',bpm:'Chill',platform:'Instagram'},{title:'Viral Dance Audio',artist:'Creator',vibe:'Energy',bpm:'Upbeat',platform:'TikTok'},{title:'Motivational Piano',artist:'Various',vibe:'Inspiring',bpm:'Mid',platform:'Reels'}]; }
+
+    document.getElementById('musicLoading').style.display = 'none';
+    document.getElementById('musicList').innerHTML = songs.map((s,i) => `
+      <div class="mitem ${selectedMusic&&selectedMusic.title===s.title?'sel':''}" onclick="pickMusic(${i},this)" data-i="${i}">
+        <div class="micon">♪</div>
+        <div class="minfo"><div class="mtitle">${s.title}</div><div class="mmeta">${s.artist} · ${s.platform}</div></div>
+        <div class="mvibe">${s.vibe}</div>
+      </div>`).join('');
+    window._songs = songs;
+  } catch(e) {
+    document.getElementById('musicLoading').style.display = 'none';
+    document.getElementById('musicList').innerHTML = '<div style="font-size:12px;color:var(--muted)">Error fetching suggestions</div>';
+  }
+  btn.disabled = false; btn.textContent = 'Suggest ♪';
+}
+
+function pickMusic(i, el) {
+  selectedMusic = window._songs[i];
+  document.querySelectorAll('.mitem').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+  toast('Music: ' + selectedMusic.title);
+}
+
+async function runReview() {
+  const content = document.getElementById('revInput').value.trim();
+  if (!content) { toast('Paste something to review!'); return; }
+  const type = document.getElementById('revType').value;
+  const audience = document.getElementById('revAudience').value;
+  const btn = document.getElementById('revBtn');
+  btn.disabled = true; btn.textContent = 'REVIEWING...';
+  document.getElementById('revOut').innerHTML = '<div style="text-align:center;padding:50px"><div class="spin"></div></div>';
+
+  try {
+    const raw = await callClaude({
+      system: 'You are a brutally honest marketing strategist. Return ONLY raw JSON, no markdown.',
+      messages: [{ role: 'user', content: `Peer review this ${type}:\n\n"${content}"\n\n${audience?'Target audience: '+audience:''}\n\nReturn JSON: {"overallScore":0-100,"verdict":"2-word verdict","criteria":[{"name":"Clarity","score":0-10},{"name":"Hook strength","score":0-10},{"name":"CTA effectiveness","score":0-10},{"name":"Audience fit","score":0-10},{"name":"Originality","score":0-10}],"strengths":["s1","s2"],"weaknesses":["w1","w2"],"topSuggestion":"one concrete fix"}` }]
+    });
+    let r;
+    try { const m = raw.match(/\{[\s\S]*\}/); r = JSON.parse(m ? m[0] : raw); }
+    catch(e) { r = {overallScore:70,verdict:'Solid Start',criteria:[{name:'Clarity',score:7},{name:'Hook strength',score:7},{name:'CTA effectiveness',score:6},{name:'Audience fit',score:7},{name:'Originality',score:7}],strengths:['Clear message','Good tone'],weaknesses:['CTA could be sharper','Missing urgency'],topSuggestion:'Add a specific time-limited hook or CTA in the final line.'}; }
+    renderReview(r);
+  } catch(e) {
+    document.getElementById('revOut').innerHTML = '<div class="empty"><div>Error — check your API setup</div></div>';
+  }
+  btn.disabled = false; btn.textContent = 'RUN PEER REVIEW';
+}
+
+function renderReview(r) {
+  const col = r.overallScore >= 80 ? 'var(--accent)' : r.overallScore >= 55 ? 'orange' : 'var(--danger)';
+  const crits = r.criteria.map(c => {
+    const fc = c.score >= 8 ? 'var(--accent)' : c.score >= 5 ? 'orange' : 'var(--danger)';
+    return `<div class="crit-row"><span class="crit-lbl">${c.name}</span><div class="crit-track"><div class="crit-fill" style="width:${c.score*10}%;background:${fc}"></div></div><span class="crit-val">${c.score}/10</span></div>`;
+  }).join('');
+  const strengths = (r.strengths||[]).map(s=>`<div style="font-size:13px;margin:3px 0">✓ ${s}</div>`).join('');
+  const weaknesses = (r.weaknesses||[]).map(w=>`<div style="font-size:13px;margin:3px 0">✗ ${w}</div>`).join('');
+
+  document.getElementById('revOut').innerHTML = `
+    <div class="score-block">
+      <div class="score-num" style="color:${col}">${r.overallScore}</div>
+      <div class="score-lbl">${r.verdict}</div>
+    </div>
+    <hr class="divider">
+    ${crits}
+    <hr class="divider">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div><div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:5px">Strengths</div>${strengths}</div>
+      <div><div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--danger);margin-bottom:5px">Weaknesses</div>${weaknesses}</div>
+    </div>
+    <div style="background:rgba(184,255,87,0.06);border:1px solid rgba(184,255,87,0.18);border-radius:8px;padding:12px">
+      <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:5px">Top Suggestion</div>
+      <div style="font-size:13px;line-height:1.6">${r.topSuggestion}</div>
+    </div>`;
+}
+
+function addToSchedule() {
+  const caption = document.getElementById('captionOut').value.trim();
+  if (!caption) { toast('Generate a post first!'); return; }
+  if (!selectedTrend) { toast('Select a trend first!'); return; }
+  const times = ['9:00 AM','12:30 PM','6:00 PM','8:30 PM'];
+  const days = ['Today','Tomorrow'];
+  const plats = platforms.slice(0,2);
+  plats.forEach(p => {
+    schedule.push({
+      id: Date.now() + Math.random(),
+      platform: p,
+      caption: caption.substring(0,65) + (caption.length > 65 ? '...' : ''),
+      music: selectedMusic ? selectedMusic.title : null,
+      time: days[Math.floor(Math.random()*2)] + ' at ' + times[Math.floor(Math.random()*4)],
+      done: false,
+    });
+  });
+  renderSchedule();
+  switchTab('schedule', document.querySelectorAll('.tab')[3]);
+  toast('Added to schedule!');
+}
+
+function renderSchedule() {
+  const c = document.getElementById('schedContainer');
+  if (!schedule.length) {
+    c.innerHTML = '<div class="empty" style="margin-top:20px"><div class="empty-ico">📅</div><div>No posts scheduled</div></div>';
+    return;
+  }
+  const badge = p => {
+    const m = {Instagram:'b-ig',TikTok:'b-tt','Twitter/X':'b-tw',YouTube:'b-yt'};
+    return m[p] || 'b-def';
+  };
+  c.innerHTML = `<div class="sched-list">${schedule.map(s=>`
+    <div class="sitem">
+      <span class="plt-badge ${badge(s.platform)}">${s.platform}</span>
+      <span class="scap">${s.caption}</span>
+      ${s.music ? `<span style="font-size:11px;color:var(--muted);flex-shrink:0">♪ ${s.music}</span>` : ''}
+      <span class="stime">${s.time}</span>
+      <div class="scheck ${s.done?'done':''}" onclick="togSched('${s.id}')">${s.done?'✓':''}</div>
+    </div>`).join('')}
+  </div>
+  <div style="margin-top:12px;font-size:12px;color:var(--muted)">${schedule.filter(s=>s.done).length}/${schedule.length} posted</div>`;
+}
+
+function togSched(id) {
+  const s = schedule.find(x => String(x.id) === String(id));
+  if (s) { s.done = !s.done; renderSchedule(); }
+}
+function clearSched() { schedule = []; renderSchedule(); }
+</script>
+</body>
+</html>
