@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrendStudio — AI Social Media Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050508;
+  --surface: #0d0d16;
+  --surface2: #12121e;
+  --surface3: #1c1c2c;
+  --border: rgba(255,255,255,0.07);
+  --border-hi: rgba(255,255,255,0.13);
+  --accent: #b8ff57;
+  --accent-dim: rgba(184,255,87,0.1);
+  --accent-glow: rgba(184,255,87,0.25);
+  --accent2: #ff6b35;
+  --accent2-dim: rgba(255,107,53,0.1);
+  --accent3: #7c5fff;
+  --accent3-dim: rgba(124,95,255,0.1);
+  --text: #f0f0f3;
+  --text2: #9898b8;
+  --muted: #50506a;
+  --danger: #ff4757;
+  --r: 12px;
+  --r-sm: 8px;
+  --r-lg: 16px;
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── BACKGROUND ORBS ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 700px 500px at 8% 15%, rgba(184,255,87,0.035) 0%, transparent 70%),
+    radial-gradient(ellipse 600px 500px at 85% 75%, rgba(124,95,255,0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 500px 350px at 65% 5%,  rgba(255,107,53,0.03) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  animation: bgDrift 22s ease-in-out infinite alternate;
+}
+@keyframes bgDrift {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0.65; transform: scale(1.06) translateY(10px); }
+}
+
+/* ── ANIMATIONS ── */
+@keyframes pulse    { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.45;transform:scale(0.75)} }
+@keyframes glow     { 0%,100%{box-shadow:0 0 5px var(--accent),0 0 10px rgba(184,255,87,0.3)} 50%{box-shadow:0 0 10px var(--accent),0 0 28px rgba(184,255,87,0.45)} }
+@keyframes rot      { to{transform:rotate(360deg)} }
+@keyframes shimmer  { 0%{background-position:-600px 0} 100%{background-position:600px 0} }
+@keyframes paneIn   { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeUp   { from{opacity:0;transform:translateY(16px) scale(0.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+@keyframes slideR   { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+@keyframes barGrow  { from{transform:scaleY(0)} to{transform:scaleY(1)} }
+@keyframes wave     { 0%,100%{transform:scaleY(0.35)} 50%{transform:scaleY(1)} }
+@keyframes toastIn  { from{opacity:0;transform:translateX(22px) scale(0.94)} to{opacity:1;transform:translateX(0) scale(1)} }
+@keyframes toastOut { from{opacity:1;transform:translateX(0) scale(1)} to{opacity:0;transform:translateX(22px) scale(0.94)} }
+@keyframes scoreIn  { from{opacity:0;transform:scale(0.6)} to{opacity:1;transform:scale(1)} }
+@keyframes fillBar  { from{width:0} }
+@keyframes shine    { from{left:-130%} to{left:130%} }
+@keyframes dotPop   { 0%,100%{transform:scale(1)} 50%{transform:scale(1.5)} }
+@keyframes countUp  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ── HEADER ── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 28px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: rgba(5,5,8,0.88);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  z-index: 200;
+}
+.logo { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+.logo-mark {
+  width: 33px; height: 33px;
+  background: var(--accent);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 20px rgba(184,255,87,0.3);
+}
+.logo-text {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 23px;
+  letter-spacing: 3px;
+  color: var(--text);
+  line-height: 1;
+}
+.logo-text em { color: var(--accent); font-style: normal; }
+.live-badge {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--text2); letter-spacing: 0.2px;
+}
+.live-ring {
+  position: relative; width: 11px; height: 11px; flex-shrink: 0;
+}
+.live-ring::before {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--accent);
+  animation: pulse 2.2s ease-in-out infinite;
+}
+.live-dot {
+  position: absolute; inset: 3px;
+  background: var(--accent); border-radius: 50%;
+  animation: glow 2.2s ease-in-out infinite;
+}
+
+/* ── LAYOUT ── */
+.app {
+  display: grid;
+  grid-template-columns: 262px 1fr;
+  min-height: calc(100vh - 56px);
+  position: relative; z-index: 1;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  border-right: 1px solid var(--border);
+  padding: 22px 16px;
+  display: flex; flex-direction: column; gap: 20px;
+  background: rgba(13,13,22,0.55);
+}
+.sb-section { display: flex; flex-direction: column; gap: 8px; }
+.lbl {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1.6px; text-transform: uppercase;
+  color: var(--muted);
+}
+.fi {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 9px 12px;
+  border-radius: var(--r-sm);
+  font-family: 'Inter', sans-serif; font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  appearance: none;
+}
+.fi:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(184,255,87,0.09);
+}
+.fi::placeholder { color: var(--muted); }
+.chip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.chip {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 7px 5px;
+  border-radius: var(--r-sm);
+  font-size: 11px; font-weight: 600;
+  cursor: pointer; text-align: center;
+  transition: all 0.16s;
+  font-family: 'Inter', sans-serif;
+  user-select: none; letter-spacing: 0.1px;
+}
+.chip:hover { color: var(--text); border-color: var(--border-hi); background: var(--surface3); }
+.chip.pon { background: var(--accent-dim); border-color: rgba(184,255,87,0.32); color: var(--accent); }
+.chip.ton { background: var(--accent3-dim); border-color: rgba(124,95,255,0.32); color: var(--accent3); }
+.sb-div { height: 1px; background: var(--border); }
+
+/* ── BIG BUTTON ── */
+.big-btn {
+  position: relative; overflow: hidden;
+  width: 100%;
+  background: var(--accent); color: #000;
+  border: none;
+  padding: 13px;
+  border-radius: var(--r);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px; letter-spacing: 2px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+.big-btn::after {
+  content: '';
+  position: absolute; top: 0; width: 55%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.38), transparent);
+  transform: skewX(-18deg);
+  left: -130%; transition: none;
+}
+.big-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 30px var(--accent-glow), 0 2px 8px rgba(184,255,87,0.15); }
+.big-btn:hover::after { animation: shine 0.55s ease; }
+.big-btn:active { transform: scale(0.98); }
+.big-btn:disabled { opacity: 0.38; cursor: not-allowed; transform: none; box-shadow: none; }
+.big-btn.secondary {
+  background: var(--surface2); color: var(--text);
+  border: 1px solid var(--border);
+}
+.big-btn.secondary:hover { box-shadow: none; border-color: var(--border-hi); }
+
+/* ── TABS ── */
+.tabs-wrap { background: var(--surface); border-bottom: 1px solid var(--border); }
+.tabs { display: flex; padding: 0 20px; gap: 0; }
+.tab {
+  display: flex; align-items: center; gap: 7px;
+  padding: 14px 15px;
+  font-size: 13px; font-weight: 500;
+  color: var(--muted); cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap; user-select: none;
+}
+.tab svg { opacity: 0.55; transition: opacity 0.2s; }
+.tab.active { color: var(--text); border-bottom-color: var(--accent); }
+.tab.active svg { opacity: 1; }
+.tab:hover:not(.active) { color: var(--text2); }
+.main { display: flex; flex-direction: column; }
+.pane { display: none; padding: 26px; flex: 1; }
+.pane.active { display: block; animation: paneIn 0.22s ease; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 20px;
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: var(--border-hi); }
+.card-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.card-title { font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); }
+
+/* ── SMALL BUTTONS ── */
+.sm-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text2);
+  padding: 6px 12px; border-radius: var(--r-sm);
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.15s; white-space: nowrap;
+}
+.sm-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.sm-btn:disabled { opacity: 0.38; cursor: not-allowed; }
+.sm-btn.hi { background: var(--accent-dim); border-color: rgba(184,255,87,0.28); color: var(--accent); }
+.copy-btn {
+  background: transparent; border: none;
+  color: var(--muted); cursor: pointer;
+  padding: 4px; border-radius: 5px;
+  transition: color 0.15s, background 0.15s;
+  display: flex; align-items: center;
+}
+.copy-btn:hover { color: var(--accent); background: var(--accent-dim); }
+
+/* ── TRENDS ── */
+.trends-hd { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 22px; }
+.tcount-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--text2);
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 4px 11px; border-radius: 20px;
+}
+.tcount-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.trends-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(238px, 1fr));
+  gap: 14px;
+}
+.tcard {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 18px;
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), border-color 0.2s, box-shadow 0.2s;
+  animation: fadeUp 0.38s ease both;
+}
+.tcard:nth-child(1){animation-delay:0ms}
+.tcard:nth-child(2){animation-delay:55ms}
+.tcard:nth-child(3){animation-delay:110ms}
+.tcard:nth-child(4){animation-delay:165ms}
+.tcard:nth-child(5){animation-delay:220ms}
+.tcard:nth-child(6){animation-delay:275ms}
+.tcard-glow {
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0; transition: opacity 0.3s;
+}
+.tcard:hover .tcard-glow, .tcard.sel .tcard-glow { opacity: 1; }
+.tcard:hover {
+  transform: translateY(-4px);
+  border-color: rgba(184,255,87,0.22);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35), 0 0 0 1px rgba(184,255,87,0.07);
+}
+.tcard.sel {
+  border-color: rgba(184,255,87,0.42);
+  background: rgba(184,255,87,0.04);
+  box-shadow: 0 0 0 1px rgba(184,255,87,0.18), 0 8px 24px rgba(0,0,0,0.25);
+}
+.tcard-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.tcard-plat { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent2); }
+.tcard-type {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.3px;
+  padding: 2px 8px; border-radius: 20px;
+  background: var(--surface3); color: var(--muted);
+}
+.tcard-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; line-height: 1.4; color: var(--text); }
+.tcard-desc { font-size: 12px; color: var(--text2); line-height: 1.55; margin-bottom: 14px; }
+.tcard-meta { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
+.heat-bars { display: flex; gap: 3px; align-items: flex-end; height: 14px; }
+.hb {
+  width: 3px; border-radius: 2px 2px 0 0;
+  transform-origin: bottom;
+  animation: barGrow 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.hb:nth-child(1){animation-delay:0ms}
+.hb:nth-child(2){animation-delay:45ms}
+.hb:nth-child(3){animation-delay:90ms}
+.hb:nth-child(4){animation-delay:135ms}
+.hb:nth-child(5){animation-delay:180ms}
+
+/* ── POST GENERATOR ── */
+.gen-layout { display: grid; grid-template-columns: 1fr 298px; gap: 16px; }
+.gen-left { display: flex; flex-direction: column; gap: 14px; }
+.post-ta-wrap { position: relative; }
+.post-ta {
+  width: 100%; background: var(--surface2);
+  border: 1px solid var(--border); color: var(--text);
+  padding: 13px; border-radius: var(--r-sm);
+  font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.65;
+  resize: vertical; min-height: 130px;
+  outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.post-ta:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(184,255,87,0.07); }
+.char-counter {
+  position: absolute; bottom: 10px; right: 11px;
+  font-size: 11px; color: var(--muted);
+  pointer-events: none; transition: color 0.2s;
+}
+.char-counter.warn { color: var(--accent2); }
+.char-counter.over { color: var(--danger); }
+.tag-row { display: flex; flex-wrap: wrap; gap: 6px; min-height: 26px; }
+.htag {
+  background: var(--accent3-dim); border: 1px solid rgba(124,95,255,0.22);
+  color: #a99fff; padding: 4px 10px; border-radius: 20px;
+  font-size: 12px; cursor: pointer;
+  transition: all 0.15s; user-select: none;
+}
+.htag:hover { background: rgba(124,95,255,0.2); border-color: rgba(124,95,255,0.42); transform: scale(1.04); }
+.htag:active { transform: scale(0.96); }
+
+/* ── MUSIC ── */
+.music-list { display: flex; flex-direction: column; gap: 7px; }
+.mitem {
+  display: flex; align-items: center; gap: 11px;
+  padding: 10px 12px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--r-sm); cursor: pointer;
+  transition: all 0.18s;
+}
+.mitem:hover, .mitem.sel {
+  border-color: rgba(255,107,53,0.38); background: var(--accent2-dim);
+}
+.micon {
+  width: 34px; height: 34px; border-radius: 7px;
+  background: var(--accent2-dim);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mwave { display: flex; gap: 2px; align-items: center; height: 16px; }
+.mw { width: 2.5px; border-radius: 2px; background: var(--accent2); animation: wave 0.9s ease-in-out infinite alternate; }
+.mw:nth-child(1){height:7px;animation-delay:0ms}
+.mw:nth-child(2){height:13px;animation-delay:110ms}
+.mw:nth-child(3){height:9px;animation-delay:55ms}
+.mw:nth-child(4){height:15px;animation-delay:165ms}
+.mw:nth-child(5){height:5px;animation-delay:80ms}
+.minfo { flex: 1; min-width: 0; }
+.mtitle { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mmeta { font-size: 11px; color: var(--text2); margin-top: 1px; }
+.mvibe {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.3px;
+  padding: 3px 8px; border-radius: 20px;
+  background: var(--accent2-dim); color: var(--accent2); flex-shrink: 0;
+}
+
+/* ── REVIEW ── */
+.rev-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.rev-out {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 22px;
+  min-height: 400px; overflow: hidden;
+}
+.score-block { text-align: center; padding: 16px 0 20px; }
+.score-arc-wrap {
+  position: relative; width: 126px; height: 126px; margin: 0 auto 10px;
+  animation: scoreIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+}
+.score-num-inner {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center; flex-direction: column;
+}
+.score-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 46px; line-height: 1;
+  animation: countUp 0.6s ease;
+}
+.score-lbl { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+.crit-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+.crit-lbl { flex: 1; font-size: 12px; color: var(--text2); }
+.crit-track { width: 82px; height: 4px; background: var(--surface3); border-radius: 2px; flex-shrink: 0; overflow: hidden; }
+.crit-fill { height: 100%; border-radius: 2px; animation: fillBar 0.9s cubic-bezier(0.22,1,0.36,1) both; }
+.crit-val { font-size: 12px; font-weight: 600; color: var(--text2); min-width: 28px; text-align: right; }
+
+/* ── SCHEDULE ── */
+.sched-list { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+.sitem {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); font-size: 13px;
+  transition: border-color 0.18s, opacity 0.3s;
+  animation: slideR 0.28s ease;
+}
+.sitem.done-item { opacity: 0.45; }
+.plt-badge {
+  padding: 3px 9px; border-radius: 20px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; flex-shrink: 0;
+}
+.b-ig { background: rgba(255,107,53,0.14); color: var(--accent2); }
+.b-tt { background: rgba(184,255,87,0.11); color: var(--accent); }
+.b-tw { background: rgba(124,95,255,0.13); color: var(--accent3); }
+.b-yt { background: rgba(255,71,87,0.13); color: var(--danger); }
+.b-def { background: rgba(255,255,255,0.06); color: var(--muted); }
+.stime { color: var(--muted); font-size: 11px; font-weight: 500; flex-shrink: 0; }
+.scap { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--text2); }
+.smusic { font-size: 11px; color: var(--muted); flex-shrink: 0; display: flex; align-items: center; gap: 4px; }
+.scheck {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 1.5px solid var(--border); background: var(--surface2);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700;
+  transition: all 0.2s; flex-shrink: 0;
+}
+.scheck:hover { border-color: var(--accent); }
+.scheck.done { background: var(--accent); border-color: var(--accent); color: #000; }
+.sched-footer {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 14px; font-size: 12px; color: var(--muted);
+}
+.sched-prog { width: 80px; height: 3px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
+.sched-prog-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.5s ease; }
+
+/* ── LOADING ── */
+.shimmer {
+  background: linear-gradient(90deg, var(--surface2) 0%, var(--surface3) 50%, var(--surface2) 100%);
+  background-size: 600px 100%;
+  animation: shimmer 1.5s ease infinite;
+  border-radius: var(--r);
+}
+.bar { height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent3), var(--accent2)); background-size: 200% 100%; border-radius: 2px; animation: shimmer 1.6s linear infinite; }
+.spin { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: rot 0.75s linear infinite; display: inline-block; }
+.dots { display: flex; gap: 5px; align-items: center; }
+.dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: pulse 1.3s ease-in-out infinite; }
+.dot:nth-child(1){animation-delay:0ms}
+.dot:nth-child(2){animation-delay:190ms}
+.dot:nth-child(3){animation-delay:380ms}
+
+/* ── EMPTY ── */
+.empty { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 180px; color: var(--muted); gap: 10px; text-align: center; padding: 24px; }
+.empty-icon { width: 48px; height: 48px; border-radius: var(--r); background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; margin-bottom: 2px; flex-shrink: 0; }
+.empty-title { font-size: 14px; font-weight: 600; color: var(--text2); }
+.empty-sub { font-size: 12px; line-height: 1.55; max-width: 230px; color: var(--muted); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 22px; right: 22px;
+  background: var(--surface2); border: 1px solid var(--border-hi);
+  border-left: 3px solid var(--accent);
+  padding: 11px 15px;
+  border-radius: var(--r); font-size: 13px; font-weight: 500;
+  z-index: 9999; opacity: 0; pointer-events: none;
+  max-width: 290px; display: flex; align-items: center; gap: 9px;
+  box-shadow: 0 10px 36px rgba(0,0,0,0.45);
+}
+.toast.show { animation: toastIn 0.24s ease forwards; }
+.toast.hide { animation: toastOut 0.24s ease forwards; }
+
+/* ── UTILS ── */
+.row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.spacer { flex: 1; }
+.section-title { font-family: 'Bebas Neue', sans-serif; font-size: 25px; letter-spacing: 2px; line-height: 1; }
+.section-sub { font-size: 13px; color: var(--text2); margin-top: 3px; line-height: 1.5; }
+.divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+.wide-ta {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); padding: 10px 12px; border-radius: var(--r-sm);
+  font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.6;
+  resize: vertical; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.wide-ta:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(184,255,87,0.07); }
+.pill { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.pill-g { background: var(--accent-dim); color: var(--accent); }
+.pill-o { background: var(--accent2-dim); color: var(--accent2); }
+.pill-p { background: var(--accent3-dim); color: var(--accent3); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { border-right: none; border-bottom: 1px solid var(--border); flex-direction: row; flex-wrap: wrap; padding: 14px; gap: 12px; }
+  .sb-section { flex: 1; min-width: 130px; }
+  .gen-layout { grid-template-columns: 1fr; }
+  .rev-layout { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">
+      <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+        <path d="M9.5 1.5L2.5 9.5h5.5l-1 6 8-9.5h-5.5l1-4.5z" fill="#000" stroke="#000" stroke-width="0.5" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="logo-text">Trend<em>Studio</em></div>
+  </div>
+  <div class="live-badge">
+    <div class="live-ring"><div class="live-dot"></div></div>
+    AI powered · live web search
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-section">
+      <span class="lbl">Your niche</span>
+      <input class="fi" type="text" id="niche" placeholder="e.g. Sustainable fashion" value="Fitness & Wellness">
+    </div>
+
+    <div class="sb-section">
+      <span class="lbl">Platforms</span>
+      <div class="chip-grid">
+        <div class="chip pon" data-p="Instagram" onclick="togP(this)">Instagram</div>
+        <div class="chip pon" data-p="TikTok" onclick="togP(this)">TikTok</div>
+        <div class="chip" data-p="Twitter/X" onclick="togP(this)">Twitter/X</div>
+        <div class="chip" data-p="YouTube" onclick="togP(this)">YouTube</div>
+        <div class="chip" data-p="Pinterest" onclick="togP(this)">Pinterest</div>
+        <div class="chip" data-p="LinkedIn" onclick="togP(this)">LinkedIn</div>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <span class="lbl">Tone</span>
+      <div class="chip-grid">
+        <div class="chip ton" data-t="Energetic" onclick="togT(this)">Energetic</div>
+        <div class="chip" data-t="Educational" onclick="togT(this)">Educational</div>
+        <div class="chip" data-t="Humorous" onclick="togT(this)">Humorous</div>
+        <div class="chip" data-t="Inspirational" onclick="togT(this)">Inspirational</div>
+      </div>
+    </div>
+
+    <div class="sb-div"></div>
+
+    <div class="sb-section">
+      <span class="lbl">Brand name</span>
+      <input class="fi" type="text" id="brand" placeholder="Optional">
+    </div>
+
+    <button class="big-btn" id="scanBtn" onclick="fetchTrends()">SCAN TRENDS</button>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="tabs-wrap">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('trends',this)">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 10.5L4.5 7l3 2.5 5-5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.5 4H13v2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Trending Topics
+        </div>
+        <div class="tab" onclick="switchTab('gen',this)">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="2" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 5h5M4.5 7h5M4.5 9h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Post Generator
+        </div>
+        <div class="tab" onclick="switchTab('review',this)">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.2" stroke="currentColor" stroke-width="1.5"/><path d="M5 7l1.5 1.5L9 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          AI Peer Review
+        </div>
+        <div class="tab" onclick="switchTab('schedule',this)">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="3" width="10" height="9.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M5 1.5v2.5M9 1.5v2.5M2 6.5h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Schedule
+        </div>
+      </div>
+    </div>
+
+    <!-- TRENDS PANE -->
+    <div class="pane active" id="pane-trends">
+      <div class="trends-hd">
+        <div>
+          <div class="section-title">What's Trending</div>
+          <div class="section-sub">Click a card to build a post from it</div>
+        </div>
+        <div id="tcount"></div>
+      </div>
+      <div id="tloading" style="display:none">
+        <div class="bar" style="margin-bottom:18px"></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+          <div class="shimmer" style="height:148px"></div>
+          <div class="shimmer" style="height:148px"></div>
+          <div class="shimmer" style="height:148px"></div>
+          <div class="shimmer" style="height:148px"></div>
+          <div class="shimmer" style="height:148px"></div>
+          <div class="shimmer" style="height:148px"></div>
+        </div>
+      </div>
+      <div class="trends-grid" id="tgrid"></div>
+      <div class="empty" id="tempty">
+        <div class="empty-icon">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="10" cy="10" r="7" stroke="var(--muted)" stroke-width="1.5"/><path d="M15.5 15.5l4 4" stroke="var(--muted)" stroke-width="1.8" stroke-linecap="round"/><path d="M7 10h6M10 7v6" stroke="var(--muted)" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </div>
+        <div class="empty-title">No trends yet</div>
+        <div class="empty-sub">Set your niche and hit <strong style="color:var(--accent)">Scan Trends</strong> to search the web for what's hot right now</div>
+      </div>
+    </div>
+
+    <!-- GENERATOR PANE -->
+    <div class="pane" id="pane-gen">
+      <div class="section-title">Post Generator</div>
+      <div class="section-sub" style="margin-bottom:22px">AI writes captions, hashtags, and picks music for your trend</div>
+      <div class="gen-layout">
+        <div class="gen-left">
+
+          <div class="card">
+            <div class="card-hd">
+              <span class="card-title">Active Trend</span>
+              <span class="pill pill-o" id="activePlatPill"></span>
+            </div>
+            <div id="activeTrendText" style="font-size:13px;color:var(--muted);line-height:1.55">← Select a trend from the Trending Topics tab</div>
+          </div>
+
+          <div class="card">
+            <div class="card-hd">
+              <span class="card-title">Caption</span>
+              <div class="row" style="gap:6px">
+                <button class="copy-btn" onclick="copyCaption()" title="Copy caption">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="5" y="1.5" width="7.5" height="8.5" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="1.5" y="4" width="7.5" height="8.5" rx="1.5" fill="var(--surface2)" stroke="currentColor" stroke-width="1.4"/></svg>
+                </button>
+                <button class="sm-btn hi" onclick="genPost()" id="genBtn">
+                  <svg width="11" height="11" viewBox="0 0 12 12" fill="currentColor"><path d="M6 1l1.2 3.2 3.3.1-2.6 2 1 3.3L6 7.7 3.1 9.6l1-3.3-2.6-2 3.3-.1z"/></svg>
+                  Generate
+                </button>
+              </div>
+            </div>
+            <div id="genLoading" style="display:none;margin-bottom:9px"><div class="bar"></div></div>
+            <div class="post-ta-wrap">
+              <textarea class="post-ta" id="captionOut" placeholder="Your AI-generated caption appears here..." oninput="updateCharCount(this)"></textarea>
+              <span class="char-counter" id="charCounter"></span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hd">
+              <span class="card-title">Hashtags</span>
+              <button class="sm-btn" id="hashBtn" onclick="genHashtags()">Regenerate</button>
+            </div>
+            <div class="tag-row" id="hashRow"><span style="font-size:12px;color:var(--muted)">Generate a post first</span></div>
+          </div>
+
+          <div class="card">
+            <div class="card-hd"><span class="card-title">Notes</span></div>
+            <textarea class="wide-ta" id="postNotes" style="height:72px" placeholder="Visual ideas, best time, CTA..."></textarea>
+          </div>
+
+          <button class="big-btn secondary" onclick="addToSchedule()">ADD TO SCHEDULE</button>
+        </div>
+
+        <!-- MUSIC -->
+        <div class="card" style="height:fit-content">
+          <div class="card-hd">
+            <span class="card-title">Music Vibe</span>
+            <button class="sm-btn" id="musicBtn" onclick="suggestMusic()">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M5 9V3.5l6-1.2V8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="3.5" cy="9" r="1.5" fill="currentColor" opacity="0.85"/><circle cx="9.5" cy="8" r="1.5" fill="currentColor" opacity="0.85"/></svg>
+              Suggest
+            </button>
+          </div>
+          <div id="musicLoading" style="display:none;margin-bottom:9px"><div class="bar"></div></div>
+          <div class="music-list" id="musicList">
+            <div class="empty" style="min-height:110px">
+              <div class="empty-icon">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M7 16V5.5l10-2v10.5" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="5" cy="16" r="2" stroke="var(--muted)" stroke-width="1.5"/><circle cx="15" cy="14" r="2" stroke="var(--muted)" stroke-width="1.5"/></svg>
+              </div>
+              <div class="empty-sub">Suggest music for your trend</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEW PANE -->
+    <div class="pane" id="pane-review">
+      <div class="section-title">AI Peer Review</div>
+      <div class="section-sub" style="margin-bottom:22px">Honest AI critique on any post, product, or ad copy</div>
+      <div class="rev-layout">
+        <div class="card" style="display:flex;flex-direction:column;gap:14px">
+          <div>
+            <span class="lbl" style="display:block;margin-bottom:8px">What are you reviewing?</span>
+            <select class="fi" id="revType">
+              <option>Product (for advertising)</option>
+              <option>Social media post</option>
+              <option>Ad copy / headline</option>
+              <option>Brand messaging</option>
+              <option>Marketing strategy</option>
+            </select>
+          </div>
+          <div>
+            <span class="lbl" style="display:block;margin-bottom:8px">Paste your content</span>
+            <textarea class="wide-ta" id="revInput" style="height:150px" placeholder="Ad copy, product description, caption, strategy..."></textarea>
+          </div>
+          <div>
+            <span class="lbl" style="display:block;margin-bottom:8px">Target audience (optional)</span>
+            <input class="fi" type="text" id="revAudience" placeholder="e.g. Gen Z fitness enthusiasts">
+          </div>
+          <button class="big-btn" onclick="runReview()" id="revBtn">RUN PEER REVIEW</button>
+        </div>
+        <div class="rev-out" id="revOut">
+          <div class="empty">
+            <div class="empty-icon">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="8" stroke="var(--muted)" stroke-width="1.5"/><path d="M8.5 9.5C8.5 8 9.6 7 11 7s2.5 1 2.5 2.5c0 1.6-1.5 2.5-2.5 3v1" stroke="var(--muted)" stroke-width="1.4" stroke-linecap="round"/><circle cx="11" cy="15.5" r="0.8" fill="var(--muted)"/></svg>
+            </div>
+            <div class="empty-title">Submit for review</div>
+            <div class="empty-sub">Get a score, breakdown, and concrete suggestions</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHEDULE PANE -->
+    <div class="pane" id="pane-schedule">
+      <div class="row">
+        <div>
+          <div class="section-title">Schedule</div>
+          <div class="section-sub">Your queued posts</div>
+        </div>
+        <div class="spacer"></div>
+        <button class="sm-btn" onclick="clearSched()">Clear all</button>
+      </div>
+      <div id="schedContainer">
+        <div class="empty" style="margin-top:28px">
+          <div class="empty-icon">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="4" width="16" height="15" rx="2" stroke="var(--muted)" stroke-width="1.5"/><path d="M7 2v3.5M15 2v3.5M3 9h16" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round"/><path d="M8 13.5l2 2 4-4" stroke="var(--muted)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="empty-title">No posts scheduled</div>
+          <div class="empty-sub">Generate a post and add it to the schedule</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <span id="toastIcon" style="flex-shrink:0;display:flex">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3.5" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </span>
+  <span id="toastMsg"></span>
+</div>
+
+<script>
+const API = '/claude';
+let platforms = ['Instagram','TikTok'];
+let tone = 'Energetic';
+let trends = [];
+let selectedTrend = null;
+let selectedMusic = null;
+let schedule = [];
+
+function togP(el) {
+  el.classList.toggle('pon');
+  platforms = [...document.querySelectorAll('.chip.pon[data-p]')].map(e => e.dataset.p);
+}
+function togT(el) {
+  document.querySelectorAll('.chip[data-t]').forEach(e => e.classList.remove('ton'));
+  el.classList.add('ton');
+  tone = el.dataset.t;
+}
+function switchTab(id, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  const pane = document.getElementById('pane-' + id);
+  pane.classList.add('active');
+}
+
+let toastTimer = null;
+function toast(msg, type) {
+  const t = document.getElementById('toast');
+  const colors = { error: 'var(--danger)', info: 'var(--accent3)', success: 'var(--accent)' };
+  const col = colors[type] || colors.success;
+  t.style.borderLeftColor = col;
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastIcon').innerHTML =
+    type === 'error'
+      ? `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 4v4M7 10v.5" stroke="${col}" stroke-width="1.8" stroke-linecap="round"/><circle cx="7" cy="7" r="5.5" stroke="${col}" stroke-width="1.5"/></svg>`
+      : `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3.5" stroke="${col}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  t.classList.remove('hide');
+  t.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.classList.remove('show'); t.classList.add('hide'); }, 3000);
+}
+
+function updateCharCount(ta) {
+  const c = document.getElementById('charCounter');
+  const n = ta.value.length;
+  c.textContent = n > 0 ? n : '';
+  c.className = 'char-counter' + (n > 2200 ? ' over' : n > 1800 ? ' warn' : '');
+}
+
+function copyCaption() {
+  const v = document.getElementById('captionOut').value;
+  if (!v) { toast('Nothing to copy yet', 'info'); return; }
+  navigator.clipboard.writeText(v).then(() => toast('Caption copied!'));
+}
+
+async function callClaude(payload) {
+  const res = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data.content.filter(b => b.type === 'text').map(b => b.text).join('\n');
+}
+
+async function fetchTrends() {
+  const niche = document.getElementById('niche').value.trim() || 'Fitness & Wellness';
+  const plats = platforms.join(', ') || 'Instagram, TikTok';
+  const btn = document.getElementById('scanBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="dots" style="justify-content:center"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>';
+  document.getElementById('tempty').style.display = 'none';
+  document.getElementById('tgrid').innerHTML = '';
+  document.getElementById('tloading').style.display = 'block';
+  document.getElementById('tcount').innerHTML = '';
+  try {
+    const raw = await callClaude({
+      system: 'You are a social media trend analyst. Use web_search to find current trends. Return ONLY a raw JSON array, absolutely no markdown fences or explanation text.',
+      messages: [{ role: 'user', content: `Search the web for what is trending RIGHT NOW in "${niche}" on ${plats} in 2025. Return 6 real specific trending topics, formats, or sounds as a JSON array. Each object: {"platform":"platform","title":"short trend name","description":"1-2 sentence description","heat":1-5,"type":"Sound|Format|Topic|Challenge|Hashtag"}` }]
+    });
+    let data;
+    try { const m = raw.match(/\[[\s\S]*\]/); data = JSON.parse(m ? m[0] : raw); } catch(e) { data = fallbackTrends(niche); }
+    trends = data;
+    document.getElementById('tcount').innerHTML = `<div class="tcount-badge"><div class="tcount-dot"></div>${data.length} trends found</div>`;
+    renderTrends(data);
+  } catch(e) {
+    trends = fallbackTrends(niche);
+    renderTrends(trends);
+    toast('Using example trends — check API setup', 'info');
+  }
+  document.getElementById('tloading').style.display = 'none';
+  btn.disabled = false; btn.textContent = 'SCAN TRENDS';
+}
+
+function fallbackTrends(niche) {
+  return [
+    {platform:'TikTok',title:'Day-in-the-life content',description:'Authentic unedited routines. High saves and shares because audiences love real over polished.',heat:5,type:'Format'},
+    {platform:'Instagram',title:'Transformation carousels',description:'Before/after slideshow format. Stops the scroll and drives massive saves.',heat:5,type:'Format'},
+    {platform:'TikTok',title:'Get ready with me',description:'GRWM applied to any niche. Feels personal and pulls strong view retention.',heat:4,type:'Format'},
+    {platform:'Instagram',title:niche+' deep dive',description:'Long-form educational Reels are outperforming short clips. Audience wants substance.',heat:4,type:'Topic'},
+    {platform:'TikTok',title:'POV storytelling',description:'First-person narrative format. Instantly immersive, very shareable.',heat:4,type:'Format'},
+    {platform:'YouTube',title:'Honest reviews & teardowns',description:'No-fluff breakdowns of products or techniques. Trust-building content that converts.',heat:3,type:'Topic'},
+  ];
+}
+
+function renderTrends(data) {
+  const grid = document.getElementById('tgrid');
+  const accs = ['var(--accent)','var(--accent2)','var(--accent3)','var(--accent)','var(--accent3)','var(--accent2)'];
+  grid.innerHTML = data.map((t, i) => {
+    const bars = [1,2,3,4,5].map(j => {
+      const h = 4 + j * 2;
+      const on = j <= t.heat;
+      return `<div class="hb" style="height:${h}px;background:${on ? accs[i] : 'var(--surface3)'}"></div>`;
+    }).join('');
+    return `<div class="tcard" id="tc-${i}" onclick="pickTrend(${i})">
+      <div class="tcard-glow"></div>
+      <div class="tcard-top">
+        <div class="tcard-plat">${t.platform}</div>
+        <div class="tcard-type">${t.type}</div>
+      </div>
+      <div class="tcard-title">${t.title}</div>
+      <div class="tcard-desc">${t.description}</div>
+      <div class="tcard-meta"><div class="heat-bars">${bars}</div><span>${t.heat}/5 heat</span></div>
+    </div>`;
+  }).join('');
+}
+
+function pickTrend(i) {
+  document.querySelectorAll('.tcard').forEach(c => c.classList.remove('sel'));
+  document.getElementById('tc-' + i).classList.add('sel');
+  selectedTrend = trends[i];
+  document.getElementById('activeTrendText').textContent = selectedTrend.title + ' — ' + selectedTrend.description;
+  document.getElementById('activeTrendText').style.color = 'var(--text)';
+  document.getElementById('activePlatPill').textContent = selectedTrend.platform;
+  switchTab('gen', document.querySelectorAll('.tab')[1]);
+  toast('Trend selected — hit Generate to write your post');
+}
+
+async function genPost() {
+  if (!selectedTrend) { toast('Select a trend first!', 'error'); return; }
+  const niche = document.getElementById('niche').value || 'general';
+  const brand = document.getElementById('brand').value;
+  const plats = platforms.join(', ');
+  const btn = document.getElementById('genBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin" style="width:12px;height:12px;border-width:1.5px"></span> Writing...';
+  document.getElementById('genLoading').style.display = 'block';
+  document.getElementById('captionOut').value = '';
+  document.getElementById('charCounter').textContent = '';
+  try {
+    const text = await callClaude({
+      system: 'You are a top social media copywriter. Write punchy, authentic captions. No hashtags.',
+      messages: [{ role: 'user', content: `Write a ${tone.toLowerCase()} caption for the trend "${selectedTrend.title}" in the ${niche} niche. Platform: ${plats}.${brand?' Brand: '+brand+'.':''} Music if selected: ${selectedMusic?selectedMusic.title:'none'}. 3-5 lines max. Make it scroll-stopping and authentic.` }]
+    });
+    const ta = document.getElementById('captionOut');
+    ta.value = text.trim();
+    updateCharCount(ta);
+    genHashtags();
+  } catch(e) { document.getElementById('captionOut').value = 'Error generating. Check your API setup.'; }
+  document.getElementById('genLoading').style.display = 'none';
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 12 12" fill="currentColor"><path d="M6 1l1.2 3.2 3.3.1-2.6 2 1 3.3L6 7.7 3.1 9.6l1-3.3-2.6-2 3.3-.1z"/></svg> Generate';
+}
+
+async function genHashtags() {
+  if (!selectedTrend) return;
+  const niche = document.getElementById('niche').value || 'general';
+  const btn = document.getElementById('hashBtn');
+  btn.disabled = true;
+  document.getElementById('hashRow').innerHTML = '<div class="shimmer" style="height:24px;width:200px;border-radius:20px"></div>';
+  try {
+    const text = await callClaude({
+      system: 'Return ONLY a space-separated list of hashtags starting with #. Nothing else.',
+      messages: [{ role: 'user', content: `8-12 hashtags for a ${niche} post about "${selectedTrend.title}" on ${platforms.join(', ')}. Mix high-volume and niche.` }]
+    });
+    const tags = text.trim().split(/\s+/).filter(t => t.startsWith('#'));
+    document.getElementById('hashRow').innerHTML = tags.map(t => `<span class="htag" onclick="copyTag(this)">${t}</span>`).join('');
+  } catch(e) {
+    document.getElementById('hashRow').innerHTML = '<span class="htag">#trending</span><span class="htag">#viral</span><span class="htag">#fyp</span>';
+  }
+  btn.disabled = false;
+}
+
+function copyTag(el) {
+  navigator.clipboard.writeText(el.textContent).then(() => toast('Copied ' + el.textContent));
+}
+
+async function suggestMusic() {
+  if (!selectedTrend) { toast('Select a trend first!', 'error'); return; }
+  const niche = document.getElementById('niche').value || 'general';
+  const btn = document.getElementById('musicBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin" style="width:12px;height:12px;border-width:1.5px"></span> Searching...';
+  document.getElementById('musicLoading').style.display = 'block';
+  document.getElementById('musicList').innerHTML = '';
+  try {
+    const raw = await callClaude({
+      system: 'You search for trending audio/music on social platforms. Return ONLY a raw JSON array, no markdown.',
+      messages: [{ role: 'user', content: `Search for 4 trending audio tracks or sounds for a ${niche} post about "${selectedTrend.title}" on ${platforms.join(', ')} in 2025. Return JSON: [{"title":"name","artist":"artist","vibe":"one word","bpm":"Upbeat|Mid|Chill","platform":"platform"}]` }]
+    });
+    let songs;
+    try { const m = raw.match(/\[[\s\S]*\]/); songs = JSON.parse(m ? m[0] : raw); }
+    catch(e) { songs = [{title:'Trending Sound',artist:'Various',vibe:'Hype',bpm:'Upbeat',platform:'TikTok'},{title:'Chill Lofi Beat',artist:'Lofi Girl',vibe:'Calm',bpm:'Chill',platform:'Instagram'},{title:'Viral Dance Audio',artist:'Creator',vibe:'Energy',bpm:'Upbeat',platform:'TikTok'},{title:'Motivational Piano',artist:'Various',vibe:'Inspiring',bpm:'Mid',platform:'Reels'}]; }
+    document.getElementById('musicLoading').style.display = 'none';
+    document.getElementById('musicList').innerHTML = songs.map((s, i) =>
+      `<div class="mitem${selectedMusic&&selectedMusic.title===s.title?' sel':''}" onclick="pickMusic(${i},this)">
+        <div class="micon"><div class="mwave"><div class="mw"></div><div class="mw"></div><div class="mw"></div><div class="mw"></div><div class="mw"></div></div></div>
+        <div class="minfo"><div class="mtitle">${s.title}</div><div class="mmeta">${s.artist} · ${s.platform}</div></div>
+        <div class="mvibe">${s.vibe}</div>
+      </div>`).join('');
+    window._songs = songs;
+  } catch(e) {
+    document.getElementById('musicLoading').style.display = 'none';
+    document.getElementById('musicList').innerHTML = '<div style="font-size:12px;color:var(--muted);padding:8px">Error fetching suggestions</div>';
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M5 9V3.5l6-1.2V8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="3.5" cy="9" r="1.5" fill="currentColor" opacity="0.85"/><circle cx="9.5" cy="8" r="1.5" fill="currentColor" opacity="0.85"/></svg> Suggest';
+}
+
+function pickMusic(i, el) {
+  selectedMusic = window._songs[i];
+  document.querySelectorAll('.mitem').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+  toast('Music: ' + selectedMusic.title);
+}
+
+async function runReview() {
+  const content = document.getElementById('revInput').value.trim();
+  if (!content) { toast('Paste something to review!', 'error'); return; }
+  const type = document.getElementById('revType').value;
+  const audience = document.getElementById('revAudience').value;
+  const btn = document.getElementById('revBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:8px"></span>REVIEWING...';
+  document.getElementById('revOut').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:200px"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+  try {
+    const raw = await callClaude({
+      system: 'You are a brutally honest marketing strategist. Return ONLY raw JSON, no markdown.',
+      messages: [{ role: 'user', content: `Peer review this ${type}:\n\n"${content}"\n\n${audience?'Target audience: '+audience:''}\n\nReturn JSON: {"overallScore":0-100,"verdict":"2-word verdict","criteria":[{"name":"Clarity","score":0-10},{"name":"Hook strength","score":0-10},{"name":"CTA effectiveness","score":0-10},{"name":"Audience fit","score":0-10},{"name":"Originality","score":0-10}],"strengths":["s1","s2"],"weaknesses":["w1","w2"],"topSuggestion":"one concrete fix"}` }]
+    });
+    let r;
+    try { const m = raw.match(/\{[\s\S]*\}/); r = JSON.parse(m ? m[0] : raw); }
+    catch(e) { r = {overallScore:70,verdict:'Solid Start',criteria:[{name:'Clarity',score:7},{name:'Hook strength',score:7},{name:'CTA effectiveness',score:6},{name:'Audience fit',score:7},{name:'Originality',score:7}],strengths:['Clear message','Good tone'],weaknesses:['CTA could be sharper','Missing urgency'],topSuggestion:'Add a specific time-limited hook or CTA in the final line.'}; }
+    renderReview(r);
+  } catch(e) {
+    document.getElementById('revOut').innerHTML = '<div class="empty"><div class="empty-title" style="color:var(--danger)">Error</div><div class="empty-sub">Check your API setup</div></div>';
+  }
+  btn.disabled = false; btn.textContent = 'RUN PEER REVIEW';
+}
+
+function renderReview(r) {
+  const s = r.overallScore;
+  const col = s >= 80 ? 'var(--accent)' : s >= 55 ? 'var(--accent2)' : 'var(--danger)';
+  const R = 47, circ = 2 * Math.PI * R;
+  const offset = circ * (1 - s / 100);
+  const crits = r.criteria.map((c, ci) => {
+    const fc = c.score >= 8 ? 'var(--accent)' : c.score >= 5 ? 'var(--accent2)' : 'var(--danger)';
+    return `<div class="crit-row"><span class="crit-lbl">${c.name}</span>
+      <div class="crit-track"><div class="crit-fill" style="width:${c.score*10}%;background:${fc};animation-delay:${200+ci*80}ms"></div></div>
+      <span class="crit-val">${c.score}/10</span></div>`;
+  }).join('');
+  const strengths = (r.strengths||[]).map(s=>`<div style="display:flex;gap:7px;align-items:flex-start;font-size:12px;margin:5px 0;color:var(--text2)"><span style="color:var(--accent);flex-shrink:0;margin-top:1px">✓</span>${s}</div>`).join('');
+  const weaknesses = (r.weaknesses||[]).map(w=>`<div style="display:flex;gap:7px;align-items:flex-start;font-size:12px;margin:5px 0;color:var(--text2)"><span style="color:var(--danger);flex-shrink:0;margin-top:1px">✗</span>${w}</div>`).join('');
+  document.getElementById('revOut').innerHTML = `
+    <div class="score-block">
+      <div class="score-arc-wrap">
+        <svg width="126" height="126" viewBox="0 0 126 126">
+          <circle cx="63" cy="63" r="${R}" fill="none" stroke="var(--surface3)" stroke-width="7"/>
+          <circle cx="63" cy="63" r="${R}" fill="none" stroke="${col}" stroke-width="7"
+            stroke-linecap="round" stroke-dasharray="${circ.toFixed(2)}" stroke-dashoffset="${offset.toFixed(2)}"
+            transform="rotate(-90 63 63)"
+            style="transition:stroke-dashoffset 1.2s cubic-bezier(0.22,1,0.36,1)"/>
+        </svg>
+        <div class="score-num-inner">
+          <div class="score-num" style="color:${col}">${s}</div>
+        </div>
+      </div>
+      <div class="score-lbl">${r.verdict}</div>
+    </div>
+    <hr class="divider">
+    ${crits}
+    <hr class="divider">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+      <div><div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:8px">Strengths</div>${strengths}</div>
+      <div><div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--danger);margin-bottom:8px">Weaknesses</div>${weaknesses}</div>
+    </div>
+    <div style="background:rgba(184,255,87,0.05);border:1px solid rgba(184,255,87,0.14);border-radius:10px;padding:14px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:7px">Top Suggestion</div>
+      <div style="font-size:13px;line-height:1.6;color:var(--text2)">${r.topSuggestion}</div>
+    </div>`;
+}
+
+function addToSchedule() {
+  const caption = document.getElementById('captionOut').value.trim();
+  if (!caption) { toast('Generate a post first!', 'error'); return; }
+  if (!selectedTrend) { toast('Select a trend first!', 'error'); return; }
+  const times = ['9:00 AM','12:30 PM','6:00 PM','8:30 PM'];
+  const days = ['Today','Tomorrow'];
+  platforms.slice(0, 2).forEach(p => {
+    schedule.push({
+      id: Date.now() + Math.random(),
+      platform: p,
+      caption: caption.substring(0, 65) + (caption.length > 65 ? '…' : ''),
+      music: selectedMusic ? selectedMusic.title : null,
+      time: days[Math.floor(Math.random()*2)] + ' · ' + times[Math.floor(Math.random()*4)],
+      done: false,
+    });
+  });
+  renderSchedule();
+  switchTab('schedule', document.querySelectorAll('.tab')[3]);
+  toast('Added to schedule!');
+}
+
+function renderSchedule() {
+  const c = document.getElementById('schedContainer');
+  if (!schedule.length) {
+    c.innerHTML = `<div class="empty" style="margin-top:28px">
+      <div class="empty-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="4" width="16" height="15" rx="2" stroke="var(--muted)" stroke-width="1.5"/><path d="M7 2v3.5M15 2v3.5M3 9h16" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round"/><path d="M8 13.5l2 2 4-4" stroke="var(--muted)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="empty-title">No posts scheduled</div>
+      <div class="empty-sub">Generate a post and add it to the schedule</div>
+    </div>`;
+    return;
+  }
+  const badge = p => ({Instagram:'b-ig',TikTok:'b-tt','Twitter/X':'b-tw',YouTube:'b-yt'}[p]||'b-def');
+  const done = schedule.filter(s => s.done).length;
+  const pct = Math.round((done / schedule.length) * 100);
+  c.innerHTML = `
+    <div class="sched-list">
+      ${schedule.map(s => `
+        <div class="sitem${s.done?' done-item':''}">
+          <span class="plt-badge ${badge(s.platform)}">${s.platform}</span>
+          <span class="scap">${s.caption}</span>
+          ${s.music ? `<span class="smusic"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M5 9V3.5l6-1.2V8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="3.5" cy="9" r="1.5" fill="currentColor" opacity="0.85"/></svg>${s.music}</span>` : ''}
+          <span class="stime">${s.time}</span>
+          <div class="scheck${s.done?' done':''}" onclick="togSched('${s.id}')">${s.done?'✓':''}</div>
+        </div>`).join('')}
+    </div>
+    <div class="sched-footer">
+      <div class="sched-prog"><div class="sched-prog-fill" style="width:${pct}%"></div></div>
+      <span>${done}/${schedule.length} posted</span>
+    </div>`;
+}
+
+function togSched(id) {
+  const s = schedule.find(x => String(x.id) === String(id));
+  if (s) { s.done = !s.done; renderSchedule(); }
+}
+function clearSched() { schedule = []; renderSchedule(); }
+</script>
+</body>
+</html>
