@@ -1,3 +1,6 @@
 name = "trendstudio"
-pages_build_output_dir = "."
+main = "worker.js"
 compatibility_date = "2025-06-01"
+
+[assets]
+directory = "."
