@@ -5,10 +5,10 @@ export async function onRequestPost(context) {
     "Content-Type": "application/json",
   };
 
-  const apiKey = context.env.ANTHROPIC_API_KEY;
+  const apiKey = context.env.OPENAI_API_KEY;
   if (!apiKey) {
     return new Response(
-      JSON.stringify({ error: "ANTHROPIC_API_KEY not configured. Add it in Cloudflare Pages > Settings > Environment Variables." }),
+      JSON.stringify({ error: "OPENAI_API_KEY not configured. Add it in Cloudflare Pages > Settings > Environment Variables." }),
       { status: 500, headers: corsHeaders }
     );
   }
@@ -20,33 +20,32 @@ export async function onRequestPost(context) {
     return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400, headers: corsHeaders });
   }
 
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
+  const messages = body.system
+    ? [{ role: "system", content: body.system }, ...body.messages]
+    : body.messages;
+
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "anthropic-beta": "web-search-2025-03-05",
+      "Authorization": "Bearer " + apiKey,
     },
     body: JSON.stringify({
-      model: "claude-opus-4-8",
-      max_tokens: 1024,
-      system: body.system,
-      messages: body.messages,
-      tools: [{ type: "web_search_20250305", name: "web_search" }],
+      model: "gpt-4o",
+      max_tokens: 1000,
+      messages,
     }),
   });
 
   const data = await response.json();
 
-  if (!response.ok) {
-    return new Response(
-      JSON.stringify({ error: data.error?.message || "Anthropic API error" }),
-      { status: response.status, headers: corsHeaders }
-    );
-  }
+  const text = data.choices?.[0]?.message?.content || data.error?.message || "No response";
+  const normalized = { content: [{ type: "text", text }] };
 
-  return new Response(JSON.stringify(data), { status: 200, headers: corsHeaders });
+  return new Response(JSON.stringify(normalized), {
+    status: response.status,
+    headers: corsHeaders,
+  });
 }
 
 export async function onRequestOptions() {

@@ -27,10 +27,10 @@ export default {
       return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers: CORS });
     }
 
-    const apiKey = env.ANTHROPIC_API_KEY;
+    const apiKey = env.OPENAI_API_KEY;
     if (!apiKey) {
       return new Response(
-        JSON.stringify({ error: "ANTHROPIC_API_KEY not configured. Add it in Cloudflare Workers > Settings > Environment Variables." }),
+        JSON.stringify({ error: "OPENAI_API_KEY not configured. Add it in Cloudflare Workers > Settings > Environment Variables." }),
         { status: 500, headers: CORS }
       );
     }
@@ -42,20 +42,20 @@ export default {
       return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400, headers: CORS });
     }
 
-    const upstream = await fetch("https://api.anthropic.com/v1/messages", {
+    const messages = body.system
+      ? [{ role: "system", content: body.system }, ...body.messages]
+      : body.messages;
+
+    const upstream = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "anthropic-beta": "web-search-2025-03-05",
+        "Authorization": "Bearer " + apiKey,
       },
       body: JSON.stringify({
-        model: "claude-opus-4-8",
-        max_tokens: 1024,
-        system: body.system,
-        messages: body.messages,
-        tools: [{ type: "web_search_20250305", name: "web_search" }],
+        model: "gpt-4o",
+        max_tokens: 1000,
+        messages,
       }),
     });
 
@@ -63,11 +63,15 @@ export default {
 
     if (!upstream.ok) {
       return new Response(
-        JSON.stringify({ error: data.error?.message || "Anthropic API error" }),
+        JSON.stringify({ error: data.error?.message || "OpenAI API error" }),
         { status: upstream.status, headers: CORS }
       );
     }
 
-    return new Response(JSON.stringify(data), { status: 200, headers: CORS });
+    const text = data.choices?.[0]?.message?.content || "No response";
+    return new Response(
+      JSON.stringify({ content: [{ type: "text", text }] }),
+      { status: 200, headers: CORS }
+    );
   },
 };
