@@ -1,5 +1,9 @@
 # TrendStudio — Cloudflare Pages Deploy Guide
 
+> Also in this repo: [`photosite/`](photosite/README.md) — PhotoSite Manager, the
+> operator dashboard for building and publishing photographer portfolio sites.
+> It is a separate Next.js app and does not affect this Pages deployment.
+
 ## What's in this folder
 
 ```

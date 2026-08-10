@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #101014;
+  --color-panel: #16161c;
+  --color-edge: #26262f;
+  --color-mist: #8b8b9a;
+  --color-brand: #c8a97e;
+}
+
+html,
+body {
+  background: var(--color-ink);
+  color: #ececf1;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/*
+ * Dashboard chrome is plain CSS rather than @apply: in Tailwind v4 a custom
+ * class is not @apply-able unless it is declared as a @utility, and these are
+ * component styles, not utilities.
+ */
+.field {
+  width: 100%;
+  border-radius: 0.375rem;
+  border: 1px solid var(--color-edge);
+  background: var(--color-panel);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: #ececf1;
+  outline: none;
+}
+.field:focus {
+  border-color: var(--color-brand);
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-mist);
+}
+
+.btn,
+.btn-primary,
+.btn-ghost,
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+.btn-primary {
+  background: var(--color-brand);
+  color: #1a1409;
+  border: 1px solid transparent;
+}
+.btn-primary:hover:not(:disabled) {
+  background: #d8bd96;
+}
+.btn-ghost {
+  border: 1px solid var(--color-edge);
+  color: #ececf1;
+  background: transparent;
+}
+.btn-ghost:hover:not(:disabled) {
+  border-color: var(--color-mist);
+}
+.btn-danger {
+  border: 1px solid #5c2626;
+  color: #f19393;
+  background: transparent;
+}
+.btn-danger:hover:not(:disabled) {
+  background: #2a1414;
+}
+
+.card {
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-edge);
+  background: var(--color-panel);
+  padding: 1.25rem;
+}
